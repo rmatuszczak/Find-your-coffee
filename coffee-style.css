@@ -1,0 +1,216 @@
+html, body {
+height: 100%;
+font-family: 'Roboto';
+background-color: #303030;		
+}
+	  
+#map {
+height: 100%;
+}
+	  
+#waypoint-panel {
+font-family: 'Roboto';
+text-align: center;
+}
+
+#waypoint-panel select, #waypoint-panel input {
+  font-size: 20px; 
+}
+
+#waypoint-panel select {
+  width: 100%;  
+}
+
+#waypoint-panel {
+       width: 75%;
+		margin: auto;
+        background-color:#303030;
+		color: white;
+      }
+	  
+      h2 {
+        font-size: 1.5em;
+        margin: 0 0 5px 0;
+      }
+     
+	 .button{
+	 width: 50%;
+	 font-size: 1.5em;
+	 font-family: 'Roboto';
+	border: 0px;
+	 background-color: #00FFCC;
+	 
+	 }
+     
+	 .button:hover{
+	 color: white;
+	 background-color: #FF3366;
+	 box-shadow: 0 2px 6px #00FFCC;
+	 cursor: pointer;
+	 
+	 }
+	 #more{
+	 margin-top: 5px;
+	 }
+	  
+	 #display-directions{
+	 margin-bottom: 5px;
+	 }
+	 
+#places {
+box-shadow: 0 2px 6px #00FFCC;
+background: #FF3366;
+text-align: center;
+color: white;
+font-size: 1.5em;
+}
+	 
+	  
+	  #text-directions {
+      display:none;
+        line-height: 30px;
+        
+      }
+	  
+	  #text-directions td{
+	  color: #00FFCC;
+	  }
+	  
+	  #text-directions .adp-text{
+	  color: black;
+	  }
+	  
+	  .adp-placemark {
+	  color: black;
+	  }
+	  
+	  .adp-summary {
+	  color: white;
+	  }
+	  
+	  .adp-directions {
+	  float: none;
+	  width:100%;
+	  margin: auto;
+	  
+	  }
+	  
+
+      #text-directions select, #text-directions input {
+        font-size: 15px;
+      }
+
+      #text-directions select {
+        width: 100%;
+		
+      }
+
+      #text-directions i {
+        font-size: 12px;
+      }
+      #text-directions {
+        height: 100%;
+		text-align: center;
+       width: 100%;
+        overflow: auto;
+      }
+	  
+	  #destination-wrapper{
+	  width: 75%;
+	  margin: auto;
+	  }
+	 
+	  .controls {
+	  width: 100%;
+        margin-top: 5px;
+		margin-bottom: 5px;
+        border: 1px solid transparent;
+        border-radius: 2px 2px 2px 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px #00FFCC;
+		 
+      }
+
+      #destination-input{
+	   background-color: #fff;
+        font-family: Roboto;
+        font-size: 1.2em;
+        font-weight: 300;
+        padding: 0 11px 0 13px;
+        text-overflow: ellipsis;
+		text-align: center;
+       
+      }
+	  #destination-input:focus{
+		border-color: #4d90fe;
+	  }
+	  
+#label:{
+width:100%;
+}	  
+	  #mode-panel {
+  background-color: #303030;
+  padding: 5px;
+  text-align: center;
+  color: white;
+}
+	  
+	  #mode select {
+   border: 0;
+   background: transparent;
+   text-align: center;
+   
+}
+
+#mode {
+   width:75%;
+   margin: auto;
+  	 font-family: 'Roboto';
+  box-shadow: 0 2px 6px #00FFCC;
+   background: #FF3366;
+   text-align: center;
+   color: white;
+   font-size: 1.5em;
+ 
+}
+
+#wrapper{
+	width: 75%;
+	margin: auto;
+	text-align: center;
+	color: white;
+}
+
+#proceed{
+	background-color: #FF3366;
+	color: white;
+	font-size: 2em;
+	text-align: center;
+	border: 2px;
+	width: 40%;
+	margin: auto;
+}
+
+#proceed:hover{
+	box-shadow: 0 2px 6px #00FFCC;
+	cursor: pointer;
+}
+
+a:link {
+text-decoration: none;
+color: inherit;
+}
+
+
+@media screen and (max-width: 800px){
+
+#mode{
+width:100%;
+}
+#waypoint-panel{
+width: 100%;
+}
+}
