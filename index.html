@@ -1,22 +1,283 @@
 <!DOCTYPE html>
-<html>
-   <head>
-      <meta charset = "utf-8">
-      <title>Find Your Coffee!</title>
-	  <link rel="stylesheet" href="coffee-style.css" type="text/css" />
-   </head>
-   
-   <body>
-   <div id="wrapper">
-		<h1 id="label">Welcome to Find Your Coffee!</h1>
-		<p> The application finds places within 30K around you where you can buy coffee.</p>
-		<p>After the search is completed, you can enter your destination, choose your mode of travel, and  choose your favourite coffee place.</p>
-		<p> The program will show you the way through your chosen coffee place to your destination on the map.</p>
-		<p> Also, it will calculate the distance and time, and it will present you the directions you need to follow in order to get to your destination</p></br>
-		<p>IMPORTANT! In order to use the program you must allow your browser to obtain your location.</p><br>
-		
-		<a href="FindYourCoffee.html"><div id="proceed">Click Me!</div></a>
-   </div>
-   
-   </body>
-</html>
+<html
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+	  <link rel="stylesheet" href="style.css" type="text/css" />
+    <script src="jquery-3.1.1.min.js"></script>
+    <title>Find Your Coffee!</title>
+    <script>
+
+    var myLocation;
+    var tempLatLang;
+    var destinationCoords;
+  	var pos; //position from the geolocation as LatLngObject
+  	var latitude; // Lat of a waypoint
+  	var longitude; // Lgt of a waypoint
+  	var checkboxArray; //a list of waypoints obtained from array are displayed here
+  	var selectedMode;
+
+
+
+  	//initialize map function start
+  	function initMap() {
+  	    var directionsDisplay = new google.maps.DirectionsRenderer;
+  	    var directionsService = new google.maps.DirectionsService;
+
+
+  	    // if geolocation allowed statement start
+  	    if (navigator.geolocation) { //GEO LOCATION, FINDS USERS LOCATION
+  	        navigator.geolocation.getCurrentPosition(function(position) {
+
+  	            pos = {
+  	                lat: position.coords.latitude,
+  	                lng: position.coords.longitude
+  	            }
+  	            map = new google.maps.Map(document.getElementById('map'), {
+  	                center: myLocation,
+  	                zoom: 13
+  	            });;
+
+                var input = document.getElementById('destination-input'); // get input from the searchBox
+	              var searchBox = new google.maps.places.SearchBox(input);
+
+                searchBox.addListener('places_changed', function() {
+                  var places = searchBox.getPlaces(); // get PlaceResult JSON object
+                  destinationCoords = places[0].geometry.location;  // set destination from the searchBox
+
+                  if (places.length == 0) {
+                    return;
+	                 }
+	                });
+
+  	            directionsDisplay.setMap(map);
+  	            directionsDisplay.setPanel(document.getElementById('text-directions'));
+  	            calculateAndDisplayRoute(directionsService, directionsDisplay);
+
+
+  	            document.getElementById('places').addEventListener('change', function() {
+  	                calculateAndDisplayRoute(directionsService, directionsDisplay);
+  	            });
+
+  	            document.getElementById('mode').addEventListener('change', function() {
+  	                calculateAndDisplayRoute(directionsService, directionsDisplay);
+  	            });
+
+
+
+
+  	            infoWindow = new google.maps.InfoWindow({
+  	                map: map
+  	            });
+  	            infoWindow.setPosition(pos);
+  	            infoWindow.setContent('You are here!');
+  	            map.setCenter(pos);
+  	            myLocation = pos; //Sets variable to geolocation lng and lat coordinates.
+
+  	            //choose places closer to your location- default
+  	            $(document).ready(function() {
+  	                $("#user-location-button").click(function() {
+  	                    myLocation = pos;
+  	                    var service = new google.maps.places.PlacesService(map);
+  	                    service.nearbySearch({
+  	                        location: myLocation, //Uses geolocation to find the following
+  	                        radius: 30000,
+  	                        types: ['cafe']
+  	                    }, processResults);
+  	                });
+  	            });
+                //END - choose places closer to your location
+  	            // choose places closer to Destination
+  	            $(document).ready(function() {
+  	                $("#ClickTime-button").click(function() {
+  	                    myLocation =  destinationCoords;
+  	                    var service = new google.maps.places.PlacesService(map);
+  	                    service.nearbySearch({
+  	                        location: myLocation, //Uses geolocation to find the following
+  	                        radius: 30000,
+  	                        types: ['cafe']
+  	                    }, processResults);
+  	                });
+  	            });
+                //END- choose places closer to Destination
+  	            var service = new google.maps.places.PlacesService(map);
+  	        })
+  	    }; // if geolocation allowed statement start
+  	}
+
+
+
+  	function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+  	    selectedMode = document.getElementById('mode').value;
+
+  	    var waypts = [];
+  	    var checkboxArray = document.getElementById('places');
+  	    for (var i = 0; i < checkboxArray.length; i++) {
+  	        if (checkboxArray.options[i].selected) {
+
+  	            var waypointLocation = checkboxArray[i].value;
+
+                // obtaining waypoint's latitude and longitude from string in 'places' input
+  	            var fields = waypointLocation.split(/,/); //splits the place's location into two strings to provite lat and lng coordinates
+  	            var lat = fields[0];
+  	            var lgt = fields[1];
+  	            var fields2 = lat.split("(");
+  	            latitude = parseFloat(fields2[1]); // converts the first part of  the place's location string to float to provide lat
+  	            var fields3 = lgt.split(")");
+  	            longitude = parseFloat(fields3[0]); // converts the second of  the place's location string to float to provide lgt
+                  //END -  obtaining waypoint's latitude and longitude from string
+  	            waypts.push({
+
+  	                location: {
+  	                    lat: latitude,
+  	                    lng: longitude
+  	                },
+  	                stopover: true
+  	            });
+  	        }
+  	    }
+
+
+
+  	    directionsService.route({
+  	            origin: pos, // user's position in geocoding coordinates
+  	            destination: destinationCoords,
+  	            waypoints: waypts,
+  	            optimizeWaypoints: true,
+  	            travelMode: google.maps.TravelMode[selectedMode]
+  	        },
+  	        function(response, status) {
+  	            if (status == google.maps.DirectionsStatus.OK) {
+  	                directionsDisplay.setDirections(response);
+  	            } else {
+  	                window.alert('Directions request failed due to ' + status);
+  	            }
+  	        });
+  	}
+
+  	function processResults(results, status, pagination) {
+  	    if (status !== google.maps.places.PlacesServiceStatus.OK) {
+  	        return;
+  	    } else {
+  	        createMarkers(results);
+
+  	        if (pagination.hasNextPage) {
+  	            var moreButton = document.getElementById('more');
+
+  	            moreButton.disabled = false;
+
+  	            moreButton.addEventListener('click', function() {
+  	                moreButton.disabled = true;
+  	                pagination.nextPage();
+  	            });
+  	        }
+  	    }
+  	}
+
+  	function createMarkers(places) {
+  	    var bounds = new google.maps.LatLngBounds();
+  	    var placesList = document.getElementById('places');
+
+  	    for (var i = 0, place; place = places[i]; i++) {
+  	        var image = {
+  	            url: place.icon,
+  	            size: new google.maps.Size(71, 71),
+  	            origin: new google.maps.Point(0, 0),
+  	            anchor: new google.maps.Point(17, 34),
+  	            scaledSize: new google.maps.Size(25, 25)
+  	        };
+
+  	        var marker = new google.maps.Marker({
+  	            map: map,
+  	            icon: image,
+  	            title: place.name,
+  	            position: place.geometry.location,
+  	        });
+
+  	        placesList.innerHTML += '<option value="' + place.geometry.location + '">' + place.name + " - " + place.vicinity + '</li>';
+
+  	        bounds.extend(place.geometry.location);
+
+  	    }
+  	    map.fitBounds(bounds);
+
+  	}
+
+    // handling text directions errors
+    $(document).ready(function() {
+        $("#display-directions").click(function() {
+            if (selectedMode != "TRANSIT" && selectedMode != "WALKING" && selectedMode != "BICYCLING") {
+                alert("Choose your travel mode to display directions");
+            } else {
+                $("#text-directions").toggle(1000);
+            }
+        });
+    });
+    // END- handling text directions errors
+    // show map
+    $(document).ready(function() {
+        $("#display-map").click(function() {
+            $('#map').css({
+                'opacity': '1 '
+            });
+            $('#map').css({
+                'z-index': '1 '
+            });
+        });
+    });
+    // END show map
+    // hide map
+    $(document).ready(function() {
+        $("#hide-map").click(function() {
+            $('#map').css({
+                'opacity': '0 '
+            });
+            $('#map').css({
+                'z-index': '-5 '
+            });
+        });
+    });
+    // END hide map
+    </script>
+  </head>
+  <body>
+    <div id="destination-wrapper">
+		<input id="destination-input" class="controls" type="text" placeholder="Enter your destination here">
+	</div>
+      <div id="mode-panel">
+          <h2 id="label">Choose how you would like to travel </h2>
+          <select multiple id="mode">
+              <option value="WALKING">Walking</option>
+              <option value="BICYCLING">Bicycling</option>
+              <option value="TRANSIT">Public Transportation</option>
+          </select>
+      </div>
+
+      <div id="waypoint-panel">
+          <h2 id="label">Choose your favourite coffee place!</h2>
+          <div class=switch-row>
+              <div id="places-clickTime" class="waypoints-range">
+                  <h2 id="label">I want to buy coffee from places closer to the destination</h2>
+                  <button id="ClickTime-button" class="button">Destination</button>
+              </div>
+              <div id="places-user-location" class="waypoints-range">
+                  <h2 id="label">I want to buy coffee from places closer to my current location.</h2>
+                  <button id="user-location-button" class="button">My Location</button>
+              </div>
+          </div>
+          <select multiple id="places"></select>
+          <button id="more" class="button">More results</button>
+          <h2 id="label">Click the button below to display text directions to your destinations </h2>
+          <button id="display-directions" class="button"> Text Directions</button>
+      </div>
+
+      <div id="text-directions"></div>
+      <div id="map-buttons-wrapper">
+          <button id="display-map" class="display-hide-button">Display Map</button>
+          <button id="hide-map" class="display-hide-button">Hide Map</button>
+      </div>
+      <div id="map"></div>
+
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4_0zzS4lghu5DezZXLREzWw5cbLxNAfY&signed_in=true&libraries=places&callback=initMap" async defer></script>
+  </body>
+  </html>
